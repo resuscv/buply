@@ -1,0 +1,4 @@
+Patches to buply should have a Signed-off-by: header. If you include this
+header in your patches, this signifies that you are licensing your patch to
+be used under the same terms as the rest of buply, ie. the GNU General
+Public License, version 3, or any later version.

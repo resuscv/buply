@@ -1,0 +1,186 @@
+#!/bin/sh
+#
+# buply  -  Make using bup a bit easier. 
+
+
+BackupDirDate() {
+    local period=$1
+
+    [[ "$period" == "annual" ]] \
+	&& date +%Y 
+
+    [[ "$period" == "month" ]] \
+	&& date +%Y-%m
+} 
+
+
+is_dir() {
+    local dir=$1
+
+    [[ -d $dir ]]
+}
+
+
+is_empty() {
+    local var=$1
+
+    [[ -z $var ]]
+}
+
+
+is_not_empty() {
+    local var=$1
+
+    [[ -n $var ]]
+}
+
+
+WantDebugging() {
+    local debug=$1
+
+    is_not_empty ${debug} \
+	&& echo "echo"
+}
+
+
+tic() {
+    date +"%s"
+}
+
+
+toc() {
+    local desc=$1
+    local date1=$2
+    local date2=$(tic)
+
+    echo "  \__ ${desc} took: $(date -u -d @"$(($date2-$date1))" +'%-Mm %-Ss')"
+}
+
+
+ErrorFail() {
+    local bup_path=$1
+    local cause=$2
+    local err_no=$3
+
+    cat <<EOF
+
+  !!! ERROR !!!
+For BUP_DIR = ${bup_path}
+Command failed = ${cause}
+Error number = ${err_no}
+
+EOF
+    exit ${err_no}
+}
+
+
+DoBupFsck() {
+    local bup_dir=$1
+
+    ${_E} bup fsck \
+	|| ErrorFail "${bup_dir}" "bup fsck" "$?"
+}
+    
+
+CheckBupFsck() {
+    local bup_dir=$1
+    local window=$2
+    local right_now=$(date +%s)
+    local last_backup_raw
+    local last_backup_shifted
+    local tmp
+
+    if [ "$window" == "never" ]; then
+	echo "No fsck wanted"
+    elif [ "$window" == "newdir" ]; then
+	echo "No fsck needed - this is a new backup"
+    else
+	last_backup_raw=$(BUP_DIR=${bup_dir} bup ls ${backup_name} | head -1 | sed 's/@//g')
+	tmp=$(date -d "${last_backup_raw:0:10} ${last_backup_raw:11:2}:${last_backup_raw:13:2}:${last_backup_raw:15:2}")
+	last_backup_shifted=$(date -d "$tmp + $window" +%s)
+
+	is_not_empty ${DEBUG} \
+	    && cat <<EOF
+Last backup date: $tmp
+Shifted date:     $(date -d "@$last_backup_shifted")     ${last_backup_shifted} sec
+Right now:        $(date -d "@${right_now}")     ${right_now} sec
+EOF
+
+
+	[[ ${last_backup_shifted} -lt ${right_now} ]] \
+	    && DoBupFsck "${bup_dir}" \
+            || echo "No fsck needed (within ${window})"
+    fi
+}
+
+main() {
+    local src_dir=$1
+    local backup_name=$2
+    local BUP_DIR
+    local date_start date1
+
+    # Get the start time of the process
+    date_start=$(date +"%s")
+
+    # Check that backup base directory exists
+    is_dir ${BUP_DIR_BASE} \
+	|| ErrorFail "" "Base destination directory does not exist: >${BUP_DIR_BASE}<" "2"
+
+    # Check that source directory exists
+    is_dir ${src_dir} \
+	|| ErrorFail "" "src dir does not exist: >${src_dir}<" "2"
+
+    # Check that backup name is populated
+    is_not_empty ${backup_name} \
+	|| ErrorFail "" "backup name is not defined" "2"
+
+    # Work out the directory to store the backups
+    export BUP_DIR=${BUP_DIR_BASE}/${BUP_DIR_GENERAL}-$(BackupDirDate $period)
+    echo "Backup directory:"
+    echo "    ${BUP_DIR}"
+
+    # Debugging
+    is_not_empty ${DEBUG} \
+	&& (
+	cat <<EOF
+Backup period = >${period}<
+BUP_DIR       = >${BUP_DIR}<
+Backup Echo   = >${_E}<
+SRC dir       = >${src_dir}<
+Backup name   = >${backup_name}<
+
+EOF
+	)
+
+    # If the backup directory doesn't exist, initialise it
+    is_dir $BUP_DIR \
+	|| (fsck_period="newdir" ; ${_E} bup init ) \
+	|| ErrorFail "${BUP_DIR}" "bup init" "$?"
+
+    # Do a fsck if needed
+    date1=$(tic)
+    CheckBupFsck "${BUP_DIR}" "${fsck_period}"
+    date2=$(date +"%s")
+    toc "fsck" ${date1}
+
+    # Create the index of files
+    date1=$(tic)
+    ${_E} bup index -usm ${src_dir} \
+	|| ErrorFail "${BUP_DIR}" "bup index" "$?"
+    date2=$(date +"%s")
+    toc "index" ${date1}
+
+    # Do the backup
+    date1=$(tic)
+    ${_E} bup save -n ${backup_name} ${src_dir} \
+	|| ErrorFail "${BUP_DIR}" "bup save" "$?"
+    toc "save" ${date1}
+}
+
+
+_E=$(WantDebugging ${DEBUG})
+
+main "${SRC_DIR}" "${BACKUP_NAME}"
+
+
+## END

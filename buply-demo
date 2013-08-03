@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# Sample setup for buply
+set -a
+
+# Do we want to debug - i.e. print what would have been done.
+# DEBUG=1
+
+### You can do various pre-backup checks here...
+### For example...mount the drive where you want to write your backup
+
+# The directory to back up
+SRC_DIR=$HOME/Documents
+# The name of the backup in the repo
+BACKUP_NAME=Documents
+
+
+# Storage directory for the backup, becomes:
+#   ${BUP_DIR_BASE} / ${BUP_DIR_GENERAL} - <datestring>
+BUP_DIR_BASE=/media/nas/backups-bup
+BUP_DIR_GENERAL=backup
+
+
+# How often do we want a new full backup?
+period="month"
+# period="annual"
+
+# How often to do a fsck?
+fsck_period="1 day"
+fsck_period="never"
+
+### You can fancy things with fsck_period too...
+### For example:
+###   on-home-network \
+###     && fsck_period="1 day" \
+###     || fsck_period="never"
+### where 'on-home-network' returns true/false if your IP is your home IP, so only
+### do fsck if you are at home, otherwise, save bandwidth and don't do the fsck.
+
+# Run buply...
+buply
