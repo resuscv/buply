@@ -76,38 +76,42 @@ EOF
 
 DoBupFsck() {
     local bup_dir=$1
+    local right_now=$(date +%s)
 
+    # Run the fsck
     ${_E} bup fsck \
 	|| ErrorFail "${bup_dir}" "bup fsck" "$?"
+
+    # Update the git-config setting to say that the last fsck was run...now
+    GIT_DIR=${bup_dir} ${_E} git config buply.${backup_name}.fsckdate ${right_now}
+
 }
     
 
 CheckBupFsck() {
     local bup_dir=$1
     local window=$2
-    local right_now=$(date +%s)
-    local last_backup_raw
-    local last_backup_shifted
-    local tmp
+    local shifted_now=$(date -d "- ${window}" +%s)
+    local last_backup
 
     if [ "$window" == "never" ]; then
 	echo "No fsck wanted"
     elif [ "$window" == "newdir" ]; then
 	echo "No fsck needed - this is a new backup"
     else
-	last_backup_raw=$(BUP_DIR=${bup_dir} bup ls ${backup_name} | head -1 | sed 's/@//g')
-	tmp=$(date -d "${last_backup_raw:0:10} ${last_backup_raw:11:2}:${last_backup_raw:13:2}:${last_backup_raw:15:2}")
-	last_backup_shifted=$(date -d "$tmp + $window" +%s)
+	last_backup=$(GIT_DIR=${bup_dir} git config buply.${backup_name}.fsckdate)
+
+	is_empty ${last_backup} \
+	    && last_backup=0
 
 	is_not_empty ${DEBUG} \
 	    && cat <<EOF
-Last backup date: $tmp
-Shifted date:     $(date -d "@$last_backup_shifted")     ${last_backup_shifted} sec
-Right now:        $(date -d "@${right_now}")     ${right_now} sec
+Last fsck date:   $(date -d "@$last_backup")     ${last_backup} sec
+Shifted from now: $(date -d "@${shifted_now}")     ${shifted_now} sec
 EOF
 
 
-	[[ ${last_backup_shifted} -lt ${right_now} ]] \
+	[[ ${last_backup} -lt ${shifted_now} ]] \
 	    && DoBupFsck "${bup_dir}" \
             || echo "No fsck needed (within ${window})"
     fi
