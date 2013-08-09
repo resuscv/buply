@@ -119,6 +119,9 @@ main() {
     local BUP_DIR
     local date_start date1
 
+    # There is some weird bug that rears it's head if you run buply in a bup directory.
+    cd
+
     # Get the start time of the process
     date_start=$(date +"%s")
 
