@@ -77,10 +77,18 @@ EOF
 DoBupFsck() {
     local bup_dir=$1
     local right_now=$(date +%s)
+    local bup_fsck_options=""
+    if [[ `which par2 >/dev/null` ]]; then
+	if [["$generate_parity_data" == "true" ]]; then
+	    $bup_fsck_options="$bup_fsck_options -g"
+	fi
+	else
+	    echo "!!!!!!par2 command not found"
+    fi
 
     # Run the fsck
-    ${_E} bup fsck \
-	|| ErrorFail "${bup_dir}" "bup fsck" "$?"
+    ${_E} bup fsck $bup_fsck_options \
+	|| ErrorFail "${bup_dir}" "bup fsck $bup_fsck_options" "$?"
 
     # Update the git-config setting to say that the last fsck was run...now
     GIT_DIR=${bup_dir} ${_E} git config buply.${backup_name}.fsckdate ${right_now}
