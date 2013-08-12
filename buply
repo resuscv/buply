@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # buply  -  Make using bup a bit easier. 
 
