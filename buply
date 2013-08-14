@@ -86,7 +86,18 @@ DoBupFsck() {
     GIT_DIR=${bup_dir} ${_E} git config buply.${backup_name}.fsckdate ${right_now}
 
 }
-    
+
+DoBupFsckG() {
+    local bup_dir=$1
+    if [[ "$generate_parity_data" != "false" ]]; then
+	if [[ "$(which par2)" != "" ]]; then
+	    ${_E} bup fsck -g \
+		|| ErrorFail "${bup_dir}" "bup fsck -g" "$?"
+	else
+	    echo "par2 command not found, skipping generation of parity information"
+	fi
+    fi
+}
 
 CheckBupFsck() {
     local bup_dir=$1
@@ -182,6 +193,10 @@ EOF
     ${_E} bup save -n ${backup_name} ${src_dir} \
 	|| ErrorFail "${BUP_DIR}" "bup save" "$?"
     toc "save" ${date1}
+
+    date1=$(tic)
+    DoBupFsckG "${BUP_DIR}"
+    toc "fsck -g" ${date1}
 }
 
 

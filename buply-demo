@@ -29,6 +29,10 @@ period="month"
 fsck_period="1 day"
 fsck_period="never"
 
+# Should parity information be generated? (using par2)
+# By default parity information is generated.
+# generate_parity_data=false
+
 ### You can fancy things with fsck_period too...
 ### For example:
 ###   on-home-network \
