@@ -83,7 +83,7 @@ DoBupFsck() {
 	|| ErrorFail "${bup_dir}" "bup fsck" "$?"
 
     # Update the git-config setting to say that the last fsck was run...now
-    GIT_DIR=${bup_dir} ${_E} git config buply.${backup_name}.fsckdate ${right_now}
+    GIT_DIR=${bup_dir} ${_E} git config buply.fsckdate ${right_now}
 
 }
 
@@ -110,7 +110,7 @@ CheckBupFsck() {
     elif [ "$window" == "newdir" ]; then
 	echo "No fsck needed - this is a new backup"
     else
-	last_backup=$(GIT_DIR=${bup_dir} git config buply.${backup_name}.fsckdate)
+	last_backup=$(GIT_DIR=${bup_dir} git config buply.fsckdate)
 
 	is_empty ${last_backup} \
 	    && last_backup=0
