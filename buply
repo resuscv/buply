@@ -79,8 +79,8 @@ DoBupFsck() {
     local right_now=$(date +%s)
 
     # Run the fsck
-    ${_E} bup fsck \
-	|| ErrorFail "${bup_dir}" "bup fsck" "$?"
+    ${_E} bup fsck #\
+#	|| ErrorFail "${bup_dir}" "bup fsck" "$?"
 
     # Update the git-config setting to say that the last fsck was run...now
     GIT_DIR=${bup_dir} ${_E} git config buply.fsckdate ${right_now}
