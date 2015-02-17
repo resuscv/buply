@@ -53,9 +53,10 @@ BUP_DIR_GENERAL=backup
 ``` sh
 # How often do we want a new full backup?
 period="month"
+#period="week"
 #period="annual"
 ```
-This option allows for ***month*** or ***annual*** currently.
+This option allows for ***week*** or ***month*** or ***annual*** currently.
 
 
 ``` sh
