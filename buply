@@ -11,6 +11,9 @@ BackupDirDate() {
 
     [[ "$period" == "month" ]] \
 	&& date +%Y-%m
+
+    [[ "$period" == "week" ]] \
+	&& date +%G%V
 } 
 
 
