@@ -196,7 +196,7 @@ EOF
 
     # Do the backup
     date1=$(tic)
-    ${_E} bup save -n ${backup_name} ${src_dir} \
+    ${_E} bup save -n ${backup_name} --strip ${src_dir} \
 	|| ErrorFail "${BUP_DIR}" "bup save" "$?"
     toc "save" ${date1}
 
