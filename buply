@@ -147,19 +147,19 @@ main() {
     date_start=$(date +"%s")
 
     # Check that backup base directory exists
-    is_dir ${BUP_DIR_BASE} \
+    is_dir "${BUP_DIR_BASE}" \
 	|| ErrorFail "" "Base destination directory does not exist: >${BUP_DIR_BASE}<" "2"
 
     # Check that source directory exists
-    is_dir ${src_dir} \
+    is_dir "${src_dir}" \
 	|| ErrorFail "" "src dir does not exist: >${src_dir}<" "2"
 
     # Check that backup name is populated
-    is_not_empty ${backup_name} \
+    is_not_empty "${backup_name}" \
 	|| ErrorFail "" "backup name is not defined" "2"
 
     # Work out the directory to store the backups
-    export BUP_DIR=${BUP_DIR_BASE}/${BUP_DIR_GENERAL}-$(BackupDirDate $period)
+    export BUP_DIR="${BUP_DIR_BASE}/${BUP_DIR_GENERAL}-$(BackupDirDate $period)"
     echo "Backup directory:"
     echo "    ${BUP_DIR}"
 
@@ -181,7 +181,7 @@ EOF
 	)
 
     # If the backup directory doesn't exist, initialise it
-    is_dir $BUP_DIR \
+    is_dir "$BUP_DIR" \
 	|| (fsck_period="newdir" ; ${_E} bup init ) \
 	|| ErrorFail "${BUP_DIR}" "bup init" "$?"
 
@@ -193,14 +193,14 @@ EOF
 
     # Create the index of files
     date1=$(tic)
-    ${_E} bup index ${BUP_INDEXFILE} -usm ${BUP_INDEX_FLAGS} ${src_dir} \
+    ${_E} bup index ${BUP_INDEXFILE} -usm ${BUP_INDEX_FLAGS} "${src_dir}" \
 	|| ErrorFail "${BUP_DIR}" "bup index" "$?"
     date2=$(date +"%s")
     toc "index" ${date1}
 
     # Do the backup
     date1=$(tic)
-    ${_E} bup save ${BUP_INDEXFILE} -n ${backup_name} --strip ${src_dir} \
+    ${_E} bup save ${BUP_INDEXFILE} -n ${backup_name} --strip "${src_dir}" \
 	|| ErrorFail "${BUP_DIR}" "bup save" "$?"
     toc "save" ${date1}
 
