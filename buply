@@ -1,13 +1,13 @@
 #!/bin/bash
 #
-# buply  -  Make using bup a bit easier. 
+# buply  -  Make using bup a bit easier.
 
 
 BackupDirDate() {
     local period=$1
 
     [[ "$period" == "annual" ]] \
-	&& date +%Y 
+	&& date +%Y
 
     [[ "$period" == "month" ]] \
 	&& date +%Y-%m
@@ -17,7 +17,7 @@ BackupDirDate() {
 
     [[ "$period" == "rolling" ]] \
 	&& echo $period
-} 
+}
 
 
 is_dir() {
