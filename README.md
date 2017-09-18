@@ -56,7 +56,8 @@ period="month"
 #period="week"
 #period="annual"
 ```
-This option allows for ***week*** or ***month*** or ***annual*** currently.
+This option allows for ***week*** or ***month***, ***annual*** or ***rolling*** currently.  ***Rolling*** means no new full backup.
+
 
 
 ``` sh
