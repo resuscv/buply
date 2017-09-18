@@ -68,6 +68,14 @@ export fsck_period="never"
 This option allows for ***never*** or some period (like ***1 day***) that is recognised by the date(1) command.
 
 
+
+``` sh
+# Additional flags to 'bup index' [optional]
+BUP_INDEX_FLAGS="--exclude-rx-from=$HOME/.config/buply/exclude.files --exclude=$HOME/tmp"
+```
+This option allows for passing additional flags to the INDEX command.  Don't use it for changing the name of the `indexfile`, it's not passed through to `bup save`.
+
+
 ## I want to contribute 
 Contact me on [GitHub](https://github.com/resuscv/buply) 
 

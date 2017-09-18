@@ -189,7 +189,7 @@ EOF
 
     # Create the index of files
     date1=$(tic)
-    ${_E} bup index -usm ${src_dir} \
+    ${_E} bup index -usm ${BUP_INDEX_FLAGS} ${src_dir} \
 	|| ErrorFail "${BUP_DIR}" "bup index" "$?"
     date2=$(date +"%s")
     toc "index" ${date1}
