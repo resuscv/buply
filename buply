@@ -163,12 +163,16 @@ main() {
     echo "Backup directory:"
     echo "    ${BUP_DIR}"
 
+    # Create the indexfile naming
+    local BUP_INDEXFILE="--indexfile=${BUP_DIR}/bupindex-${backup_name}"
+
     # Debugging
     is_not_empty ${DEBUG} \
 	&& (
 	cat <<EOF
 Backup period = >${period}<
 BUP_DIR       = >${BUP_DIR}<
+BUP_INDEXFILE = >${BUP_INDEXFILE}<
 Backup Echo   = >${_E}<
 SRC dir       = >${src_dir}<
 Backup name   = >${backup_name}<
@@ -189,14 +193,14 @@ EOF
 
     # Create the index of files
     date1=$(tic)
-    ${_E} bup index -usm ${BUP_INDEX_FLAGS} ${src_dir} \
+    ${_E} bup index ${BUP_INDEXFILE} -usm ${BUP_INDEX_FLAGS} ${src_dir} \
 	|| ErrorFail "${BUP_DIR}" "bup index" "$?"
     date2=$(date +"%s")
     toc "index" ${date1}
 
     # Do the backup
     date1=$(tic)
-    ${_E} bup save -n ${backup_name} --strip ${src_dir} \
+    ${_E} bup save ${BUP_INDEXFILE} -n ${backup_name} --strip ${src_dir} \
 	|| ErrorFail "${BUP_DIR}" "bup save" "$?"
     toc "save" ${date1}
 

@@ -73,7 +73,8 @@ This option allows for ***never*** or some period (like ***1 day***) that is rec
 # Additional flags to 'bup index' [optional]
 BUP_INDEX_FLAGS="--exclude-rx-from=$HOME/.config/buply/exclude.files --exclude=$HOME/tmp"
 ```
-This option allows for passing additional flags to the INDEX command.  Don't use it for changing the name of the `indexfile`, it's not passed through to `bup save`.
+This option allows for passing additional flags to the INDEX command.  Don't use it for changing the name of the `indexfile`, it's now automatically generated as 
+`${BUP_DIR}/bupindex-${backup_name}`.
 
 
 ## I want to contribute 
